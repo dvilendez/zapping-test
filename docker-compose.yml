@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: zapping
+    networks:
+      - my-network
+    ports:
+      - "5432:5432"
+
+  api:
+    build: ./api
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: zapping
+      DB_HOST: db
+      PORT: 3001
+      JWT_SECRET: de4d2cefe34621fc896847fb3518bc90695f476e6ee58e98a3ca571861c76b790180ddeb3130798d7d1c1573157363dd8c48e9c9e15ef2daeed48298ecfbfa1a
+    ports:
+      - "3001:3001"
+    networks:
+      - my-network
+    depends_on:
+      - db
+
+  client:
+    build: ./client
+    environment:
+      REACT_APP_BASE_HOST: http://localhost:3001
+    ports:
+      - "3000:3000"
+    networks:
+      - my-network
+    depends_on:
+      - api
+
+networks:
+  my-network:
